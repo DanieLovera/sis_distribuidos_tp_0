@@ -14,6 +14,9 @@ Before running any scripts it is necessary to execute `poetry install` first to 
 
 ## Run scritps
 1. poetry run python <script_name.py> [args...]
-> Example of usage: poetry run python scale_clients.py 5
-> Example of usage: poetry run python scale_clients.py 0
+
+## Example of usages
+**scale_clients.py**
+> - poetry run python scale_clients.py 5
+> - poetry run python scale_clients.py 0
 
