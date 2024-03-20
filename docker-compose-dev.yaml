@@ -9,7 +9,7 @@ services:
     - PYTHONUNBUFFERED=1
     - LOGGING_LEVEL=DEBUG
     volumes:
-    - ./server/config.ini:/pepe.ini
+    - ./server/config.ini:/config.ini
     networks:
     - testing_net
   client_1:
