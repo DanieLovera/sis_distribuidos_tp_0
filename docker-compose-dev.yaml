@@ -8,6 +8,8 @@ services:
     environment:
     - PYTHONUNBUFFERED=1
     - LOGGING_LEVEL=DEBUG
+    volumes:
+    - ./server/config.ini:/pepe.ini
     networks:
     - testing_net
   client_1:
@@ -16,7 +18,9 @@ services:
     entrypoint: /client
     environment:
     - CLI_LOG_LEVEL=DEBUG
-    - CLIENT_ID=1
+    - CLI_ID=1
+    volumes:
+    - ./client/config.yaml:/config.yaml
     networks:
     - testing_net
     depends_on:
@@ -27,7 +31,9 @@ services:
     entrypoint: /client
     environment:
     - CLI_LOG_LEVEL=DEBUG
-    - CLIENT_ID=2
+    - CLI_ID=2
+    volumes:
+    - ./client/config.yaml:/config.yaml
     networks:
     - testing_net
     depends_on:
@@ -38,7 +44,9 @@ services:
     entrypoint: /client
     environment:
     - CLI_LOG_LEVEL=DEBUG
-    - CLIENT_ID=3
+    - CLI_ID=3
+    volumes:
+    - ./client/config.yaml:/config.yaml
     networks:
     - testing_net
     depends_on:
@@ -49,7 +57,9 @@ services:
     entrypoint: /client
     environment:
     - CLI_LOG_LEVEL=DEBUG
-    - CLIENT_ID=4
+    - CLI_ID=4
+    volumes:
+    - ./client/config.yaml:/config.yaml
     networks:
     - testing_net
     depends_on:
@@ -60,7 +70,9 @@ services:
     entrypoint: /client
     environment:
     - CLI_LOG_LEVEL=DEBUG
-    - CLIENT_ID=5
+    - CLI_ID=5
+    volumes:
+    - ./client/config.yaml:/config.yaml
     networks:
     - testing_net
     depends_on:

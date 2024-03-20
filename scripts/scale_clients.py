@@ -17,6 +17,9 @@ def get_service_client_config():
         CONFIG_PARAM_ENVIRONMENT: [
             "CLI_LOG_LEVEL=DEBUG"
         ],
+        "volumes": [
+            "./client/config.yaml:/config.yaml"
+        ],
         "networks": [
             "testing_net"
         ],
