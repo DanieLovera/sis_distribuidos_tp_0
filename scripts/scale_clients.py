@@ -6,7 +6,7 @@ DOCKER_COMPOSE_FILE_PATH = "../docker-compose-dev.yaml"
 CONFIG_PARAM_CONTAINER_NAME = "container_name"
 CONFIG_PARAM_ENVIRONMENT = "environment"
 CLIENT_SERVICE_PREFIX = "client"
-CLIENT_SERVICE_ENV_ID_NAME = "CLIENT_ID"
+CLIENT_SERVICE_ENV_ID_NAME = "CLI_ID"
 FILE_BEGIN_POSITION = 0
 
 def get_service_client_config():
