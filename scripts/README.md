@@ -10,10 +10,12 @@
 3. Run `. $HOME/.profile` to apply your changes to yout current session
 
 ## Installing script dependencies
-Before running any scripts it is necessary to execute `poetry install` first to download all dependencies
+- Before running python scripts it is necessary to execute `poetry install` first to download all dependencies
+- Before running bash scripts it may be necessary to set proper permissions for them i.e., execute `chmod 755 <script_name.sh>`
 
 ## Run scritps
 1. poetry run python <script_name.py> [args...]
+2. ./healthcheck.sh
 
 ## Example of usages
 **scale_clients.py**
