@@ -75,15 +75,23 @@ class Server:
 
     def _release_server_socket(self):
         if self._server_socket:
-            self._server_socket.shutdown(socket.SHUT_RDWR)
-            self._server_socket.close()
-            self._server_socket = None
+            try:
+                self._server_socket.shutdown(socket.SHUT_RDWR)
+            except OSError as e:
+                pass
+            finally:
+                self._server_socket.close()
+                self._server_socket = None
 
     def _release_client_socket(self):
         if self._client_socket:
-            self._client_socket.shutdown(socket.SHUT_RDWR)
-            self._client_socket.close()
-            self._client_socket = None
+            try:
+                self._client_socket.shutdown(socket.SHUT_RDWR)
+            except OSError as e:
+                pass
+            finally:
+                self._client_socket.close()
+                self._client_socket = None
 
     def _sigterm_handler(self, signum, frame):
         logging.info("action: sigterm_handler | result: in_progress")
