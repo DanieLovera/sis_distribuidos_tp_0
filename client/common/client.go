@@ -4,6 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -52,48 +55,67 @@ func (c *Client) createClientSocket() error {
 func (c *Client) StartClientLoop() {
 	// autoincremental msgID to identify every message sent
 	msgID := 1
+	signalChannel := make(chan os.Signal, 1)
+	signal.Notify(signalChannel, syscall.SIGTERM)
 
 loop:
 	// Send messages if the loopLapse threshold has not been surpassed
 	for timeout := time.After(c.config.LoopLapse); ; {
+		// Create a new connection
+		c.createClientSocket()
+		defer c.realeaseResources()
+		// Process the client in a goroutine to avoid blocking operations
+		join := make(chan int, 1)
+		go c.processClient(join, msgID)
+		// Wait until timeout, signal or join from the processClient
 		select {
 		case <-timeout:
 			log.Infof("action: timeout_detected | result: success | client_id: %v",
 				c.config.ID,
 			)
 			break loop
-		default:
+		case <-signalChannel:
+			log.Infof("action: sigterm_handler | result: in_progress | client_id: %v", c.config.ID)
+			c.realeaseResources()
+			log.Infof("action: sigterm_handler | result: success | client_id: %v", c.config.ID)
+			break loop
+		case <-join:
+			msgID++
 		}
-
-		// Create the connection the server in every loop iteration. Send an
-		c.createClientSocket()
-
-		// TODO: Modify the send to avoid short-write
-		fmt.Fprintf(
-			c.conn,
-			"[CLIENT %v] Message N°%v\n",
-			c.config.ID,
-			msgID,
-		)
-		msg, err := bufio.NewReader(c.conn).ReadString('\n')
-		msgID++
-		c.conn.Close()
-
-		if err != nil {
-			log.Errorf("action: receive_message | result: fail | client_id: %v | error: %v",
-				c.config.ID,
-				err,
-			)
-			return
-		}
-		log.Infof("action: receive_message | result: success | client_id: %v | msg: %v",
-			c.config.ID,
-			msg,
-		)
-
 		// Wait a time between sending one message and the next one
 		time.Sleep(c.config.LoopPeriod)
 	}
 
 	log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
+}
+
+func (c *Client) realeaseResources() {
+	if c.conn != nil {
+		c.conn.Close()
+		c.conn = nil
+	}
+}
+
+func (c *Client) processClient(join chan int, msgID int) {
+	// TODO: Modify the send to avoid short-write
+	fmt.Fprintf(
+		c.conn,
+		"[CLIENT %v] Message N°%v\n",
+		c.config.ID,
+		msgID,
+	)
+	msg, err := bufio.NewReader(c.conn).ReadString('\n')
+
+	if err != nil {
+		log.Errorf("action: receive_message | result: fail | client_id: %v | error: %v",
+			c.config.ID,
+			err,
+		)
+		return
+	}
+	log.Infof("action: receive_message | result: success | client_id: %v | msg: %v",
+		c.config.ID,
+		msg,
+	)
+	join <- msgID
 }
