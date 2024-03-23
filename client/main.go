@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
@@ -66,24 +65,24 @@ func InitConfig() (*viper.Viper, error) {
 // parses the string and set the level to the logger. If the level string is not
 // valid an error is returned
 func InitLogger(logLevel string) error {
-	level, err := logrus.ParseLevel(logLevel)
+	level, err := log.ParseLevel(logLevel)
 	if err != nil {
 		return err
 	}
 
-	customFormatter := &logrus.TextFormatter{
+	customFormatter := &log.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
 		FullTimestamp:   false,
 	}
-	logrus.SetFormatter(customFormatter)
-	logrus.SetLevel(level)
+	log.SetFormatter(customFormatter)
+	log.SetLevel(level)
 	return nil
 }
 
 // PrintConfig Print all the configuration parameters of the program.
 // For debugging purposes only
 func PrintConfig(v *viper.Viper) {
-	logrus.Infof("action: config | result: success | client_id: %s | document: %s | name: %s | lastname: %s | betnumber: %s | birthdate: %s | server_address: %s | loop_lapse: %v | loop_period: %v | log_level: %s",
+	log.Infof("action: config | result: success | client_id: %s | document: %s | name: %s | lastname: %s | betnumber: %s | birthdate: %s | server_address: %s | loop_lapse: %v | loop_period: %v | log_level: %s",
 		v.GetString("id"),
 		v.GetString("document"),
 		v.GetString("name"),
