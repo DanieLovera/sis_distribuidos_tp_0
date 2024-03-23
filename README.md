@@ -131,3 +131,10 @@ La Parte 2 requiere una sección donde se explique el protocolo de comunicación
 La Parte 3 requiere una sección que expliquen los mecanismos de sincronización utilizados.
 
 Finalmente, se pide a los alumnos leer atentamente y **tener en cuenta** los criterios de corrección provistos [en el campus](https://campusgrado.fi.uba.ar/mod/page/view.php?id=73393).
+
+## Informe de Resultados
+
+### Ejercicio N°4:
+Se agrego un control ordenado del servidor y cliente para evitar retener recursos del sistema por el cierre repentino de las aplicaciones.
+- Del lado del servidor no se observaron inconvenientes al momento de liberar los recursos
+- Del lado del cliente se tuvo que refactorizar la rutina para aislar el procesamiento del cliente en una go routine para evitar bloqueos por operaciones de send y recv y sleep, adicionalmente se agrego un control para escuchar por tres canales principales, uno para cortar ejecución cuando se recibe un timeout otro para cortar la ejecucion cuando se recibe la señal de SIGTERM y adicionalmente un canal de join para poder esperar a que un cliente se procese antes de seguir con el siguiente de forma tal de mantener la logica inicial y los tiempos de procesamiento planteados.
