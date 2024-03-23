@@ -54,19 +54,25 @@ func (c *Client) createClientSocket() error {
 // StartClientLoop Send messages to the client until some time threshold is met
 func (c *Client) StartClientLoop() {
 	// autoincremental msgID to identify every message sent
-	msgID := 1
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, syscall.SIGTERM)
+	betReader := GetInstance()
 
 loop:
 	// Send messages if the loopLapse threshold has not been surpassed
 	for timeout := time.After(c.config.LoopLapse); ; {
+		bet, err := betReader.Read()
+		if err != nil {
+			log.Errorf("action: read_bet | result: fail | client_id: %v | bet_sequence: %v", c.config.ID, bet.Sequence)
+			continue
+		}
+
 		// Create a new connection
 		c.createClientSocket()
 		defer c.realeaseResources()
 		// Process the client in a goroutine to avoid blocking operations
-		join := make(chan int, 1)
-		go c.processClient(join, msgID)
+		join := make(chan uint32, 1)
+		go c.processClient(join, bet)
 		// Wait until timeout, signal or join from the processClient
 		select {
 		case <-timeout:
@@ -80,7 +86,6 @@ loop:
 			log.Infof("action: sigterm_handler | result: success | client_id: %v", c.config.ID)
 			break loop
 		case <-join:
-			msgID++
 		}
 	}
 
@@ -94,13 +99,13 @@ func (c *Client) realeaseResources() {
 	}
 }
 
-func (c *Client) processClient(join chan int, msgID int) {
+func (c *Client) processClient(join chan uint32, bet BetDto) {
 	// TODO: Modify the send to avoid short-write
 	fmt.Fprintf(
 		c.conn,
 		"[CLIENT %v] Message N°%v\n",
 		c.config.ID,
-		msgID,
+		bet.Sequence,
 	)
 	msg, err := bufio.NewReader(c.conn).ReadString('\n')
 
@@ -117,5 +122,5 @@ func (c *Client) processClient(join chan int, msgID int) {
 	)
 	// Wait a time between sending one message and the next one
 	time.Sleep(c.config.LoopPeriod)
-	join <- msgID
+	join <- bet.Sequence
 }
