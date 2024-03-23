@@ -31,6 +31,11 @@ func InitConfig() (*viper.Viper, error) {
 
 	// Add env variables supported
 	v.BindEnv("id")
+	v.BindEnv("document")
+	v.BindEnv("name")
+	v.BindEnv("lastname")
+	v.BindEnv("betnumber")
+	v.BindEnv("birthdate")
 	v.BindEnv("server", "address")
 	v.BindEnv("loop", "period")
 	v.BindEnv("loop", "lapse")
@@ -78,8 +83,13 @@ func InitLogger(logLevel string) error {
 // PrintConfig Print all the configuration parameters of the program.
 // For debugging purposes only
 func PrintConfig(v *viper.Viper) {
-	logrus.Infof("action: config | result: success | client_id: %s | server_address: %s | loop_lapse: %v | loop_period: %v | log_level: %s",
+	logrus.Infof("action: config | result: success | client_id: %s | document: %s | name: %s | lastname: %s | betnumber: %s | birthdate: %s | server_address: %s | loop_lapse: %v | loop_period: %v | log_level: %s",
 		v.GetString("id"),
+		v.GetString("document"),
+		v.GetString("name"),
+		v.GetString("lastname"),
+		v.GetString("betnumber"),
+		v.GetString("birthdate"),
 		v.GetString("server.address"),
 		v.GetDuration("loop.lapse"),
 		v.GetDuration("loop.period"),

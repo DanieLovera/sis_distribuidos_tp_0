@@ -22,6 +22,11 @@ services:
     image: client:latest
     entrypoint: /client
     environment:
+    - CLI_DOCUMENT=95854312
+    - CLI_NAME=Daniel Alejandro
+    - CLI_LASTNAME=Lovera Lopez
+    - CLI_BETNUMBER=7573
+    - CLI_BIRTHDATE=1997-01-01
     - CLI_LOG_LEVEL=DEBUG
     - CLI_ID=1
     volumes:
@@ -35,6 +40,11 @@ services:
     image: client:latest
     entrypoint: /client
     environment:
+    - CLI_DOCUMENT=30904465
+    - CLI_NAME=Santiago Lionel
+    - CLI_LASTNAME=Lorca
+    - CLI_BETNUMBER=7574
+    - CLI_BIRTHDATE=1999-03-17
     - CLI_LOG_LEVEL=DEBUG
     - CLI_ID=2
     volumes:
@@ -48,6 +58,11 @@ services:
     image: client:latest
     entrypoint: /client
     environment:
+    - CLI_DOCUMENT=50219882
+    - CLI_NAME=Ramon Andres
+    - CLI_LASTNAME=Cardenas
+    - CLI_BETNUMBER=7575
+    - CLI_BIRTHDATE=2000-12-25
     - CLI_LOG_LEVEL=DEBUG
     - CLI_ID=3
     volumes:
@@ -61,6 +76,11 @@ services:
     image: client:latest
     entrypoint: /client
     environment:
+    - CLI_DOCUMENT=40118472
+    - CLI_NAME=Carlos Esteban
+    - CLI_LASTNAME=Poroto
+    - CLI_BETNUMBER=7576
+    - CLI_BIRTHDATE=1990-06-30
     - CLI_LOG_LEVEL=DEBUG
     - CLI_ID=4
     volumes:
@@ -74,6 +94,11 @@ services:
     image: client:latest
     entrypoint: /client
     environment:
+    - CLI_DOCUMENT=60129482
+    - CLI_NAME=Francisco Javier
+    - CLI_LASTNAME=Gonzalez
+    - CLI_BETNUMBER=7577
+    - CLI_BIRTHDATE=1995-09-15
     - CLI_LOG_LEVEL=DEBUG
     - CLI_ID=5
     volumes:
