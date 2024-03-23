@@ -15,7 +15,12 @@ def get_service_client_config():
         "image": "client:latest",
         "entrypoint": "/client",
         CONFIG_PARAM_ENVIRONMENT: [
-            "CLI_LOG_LEVEL=DEBUG"
+            "CLI_DOCUMENT=",
+            "CLI_NAME=",
+            "CLI_LASTNAME=",
+            "CLI_BETNUMBER=",
+            "CLI_BIRTHDATE=",
+            "CLI_LOG_LEVEL=DEBUG",
         ],
         "volumes": [
             "./client/config.yaml:/config.yaml"
