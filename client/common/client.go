@@ -82,8 +82,6 @@ loop:
 		case <-join:
 			msgID++
 		}
-		// Wait a time between sending one message and the next one
-		time.Sleep(c.config.LoopPeriod)
 	}
 
 	log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
@@ -117,5 +115,7 @@ func (c *Client) processClient(join chan int, msgID int) {
 		c.config.ID,
 		msg,
 	)
+	// Wait a time between sending one message and the next one
+	time.Sleep(c.config.LoopPeriod)
 	join <- msgID
 }
