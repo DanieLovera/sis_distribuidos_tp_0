@@ -1,4 +1,4 @@
-package common
+package main
 
 import (
 	"bufio"
@@ -8,6 +8,9 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/common"
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/comms/betmsg"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -56,14 +59,15 @@ func (c *Client) StartClientLoop() {
 	// autoincremental msgID to identify every message sent
 	signalChannel := make(chan os.Signal, 1)
 	signal.Notify(signalChannel, syscall.SIGTERM)
-	betReader := GetInstance()
+	betReader := common.GetBetReaderInstance()
 
 loop:
 	// Send messages if the loopLapse threshold has not been surpassed
 	for timeout := time.After(c.config.LoopLapse); ; {
 		bet, err := betReader.Read()
 		if err != nil {
-			log.Errorf("action: read_bet | result: fail | client_id: %v | bet_sequence: %v", c.config.ID, bet.Sequence)
+			// log.Errorf("action: read_bet | result: fail | client_id: %v | bet_sequence: %v", c.config.ID, bet.Sequence)
+			log.Errorf("action: read_bet | result: fail | client_id: %v", c.config.ID)
 			continue
 		}
 
@@ -99,14 +103,17 @@ func (c *Client) realeaseResources() {
 	}
 }
 
-func (c *Client) processClient(join chan uint32, bet BetDto) {
-	// TODO: Modify the send to avoid short-write
+func (c *Client) processClient(join chan uint32, bet common.BetDto) {
+	bms := betmsg.NewSendBetMsg(&bet)
+	se, _ := bms.Serialize()
+
 	fmt.Fprintf(
 		c.conn,
 		"[CLIENT %v] Message N°%v\n",
 		c.config.ID,
-		bet.Sequence,
+		se,
 	)
+
 	msg, err := bufio.NewReader(c.conn).ReadString('\n')
 
 	if err != nil {
@@ -122,5 +129,5 @@ func (c *Client) processClient(join chan uint32, bet BetDto) {
 	)
 	// Wait a time between sending one message and the next one
 	time.Sleep(c.config.LoopPeriod)
-	join <- bet.Sequence
+	join <- bet.Document
 }

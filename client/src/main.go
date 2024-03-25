@@ -8,8 +8,6 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-
-	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/common"
 )
 
 // InitConfig Function that uses viper library to parse configuration parameters.
@@ -99,13 +97,13 @@ func main() {
 	// Print program config with debugging purposes
 	PrintConfig(v)
 
-	clientConfig := common.ClientConfig{
+	clientConfig := ClientConfig{
 		ServerAddress: v.GetString("server.address"),
 		ID:            v.GetString("id"),
 		LoopLapse:     v.GetDuration("loop.lapse"),
 		LoopPeriod:    v.GetDuration("loop.period"),
 	}
 
-	client := common.NewClient(clientConfig)
+	client := NewClient(clientConfig)
 	client.StartClientLoop()
 }
