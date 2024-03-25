@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -26,7 +24,7 @@ type ClientConfig struct {
 // Client Entity that encapsulates how
 type Client struct {
 	config ClientConfig
-	conn   net.Conn
+	socket common.SocketTcp
 }
 
 // NewClient Initializes a new client receiving the configuration
@@ -41,8 +39,9 @@ func NewClient(config ClientConfig) *Client {
 // CreateClientSocket Initializes client socket. In case of
 // failure, error is printed in stdout/stderr and exit 1
 // is returned
-func (c *Client) createClientSocket() error {
-	conn, err := net.Dial("tcp", c.config.ServerAddress)
+func (c *Client) createSocket() error {
+	socket := common.NewSocketTcp()
+	err := socket.Connect(c.config.ServerAddress)
 	if err != nil {
 		log.Fatalf(
 			"action: connect | result: fail | client_id: %v | error: %v",
@@ -50,7 +49,7 @@ func (c *Client) createClientSocket() error {
 			err,
 		)
 	}
-	c.conn = conn
+	c.socket = socket
 	return nil
 }
 
@@ -71,9 +70,15 @@ loop:
 			continue
 		}
 
-		// Create a new connection
-		c.createClientSocket()
-		defer c.realeaseResources()
+		err = c.createSocket()
+		if err != nil {
+			log.Fatalf(
+				"action: connect | result: fail | client_id: %v | error: %v",
+				c.config.ID,
+				err,
+			)
+		}
+		defer c.socket.Close()
 		// Process the client in a goroutine to avoid blocking operations
 		join := make(chan uint32, 1)
 		go c.processClient(join, bet)
@@ -85,9 +90,7 @@ loop:
 			)
 			break loop
 		case <-signalChannel:
-			log.Infof("action: sigterm_handler | result: in_progress | client_id: %v", c.config.ID)
-			c.realeaseResources()
-			log.Infof("action: sigterm_handler | result: success | client_id: %v", c.config.ID)
+			log.Infof("action: sigterm_handler | result: received | client_id: %v", c.config.ID)
 			break loop
 		case <-join:
 		}
@@ -96,25 +99,14 @@ loop:
 	log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
 }
 
-func (c *Client) realeaseResources() {
-	if c.conn != nil {
-		c.conn.Close()
-		c.conn = nil
-	}
-}
-
 func (c *Client) processClient(join chan uint32, bet common.BetDto) {
 	bms := betmsg.NewSendBetMsg(&bet)
 	se, _ := bms.Serialize()
 
-	fmt.Fprintf(
-		c.conn,
-		"[CLIENT %v] Message N°%v\n",
-		c.config.ID,
-		se,
-	)
-
-	msg, err := bufio.NewReader(c.conn).ReadString('\n')
+	stream := []byte(fmt.Sprintf("[CLIENT %v] Message N°%v\n", c.config.ID, se))
+	c.socket.Send(stream)
+	buff := make([]byte, len(stream))
+	err := c.socket.Recv(buff)
 
 	if err != nil {
 		log.Errorf("action: receive_message | result: fail | client_id: %v | error: %v",
@@ -125,7 +117,7 @@ func (c *Client) processClient(join chan uint32, bet common.BetDto) {
 	}
 	log.Infof("action: receive_message | result: success | client_id: %v | msg: %v",
 		c.config.ID,
-		msg,
+		string(buff),
 	)
 	// Wait a time between sending one message and the next one
 	time.Sleep(c.config.LoopPeriod)

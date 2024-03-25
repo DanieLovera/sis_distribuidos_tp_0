@@ -1,18 +1,17 @@
 package common
 
 import (
-	"fmt"
 	"net"
 )
 
 const procotol = "tcp"
 
-type Socket struct {
+type SocketTcp struct {
 	socket net.Conn
 }
 
-func NewSocket() Socket {
-	return Socket{socket: nil}
+func NewSocketTcp() SocketTcp {
+	return SocketTcp{socket: nil}
 }
 
 func sendRecv(streamBuff []byte, streamBuffSize int, callback func([]byte) (int, error)) error {
@@ -27,8 +26,7 @@ func sendRecv(streamBuff []byte, streamBuffSize int, callback func([]byte) (int,
 	return nil
 }
 
-func (s *Socket) Connect(host string, service string) error {
-	address := fmt.Sprintf("%s:%s", host, service)
+func (s *SocketTcp) Connect(address string) error {
 	conn, err := net.Dial(procotol, address)
 	if err != nil {
 		return err
@@ -37,16 +35,19 @@ func (s *Socket) Connect(host string, service string) error {
 	return nil
 }
 
-func (s *Socket) Send(stream []byte) error {
+func (s *SocketTcp) Send(stream []byte) error {
 	nBytesToWrite := len(stream)
 	return sendRecv(stream, nBytesToWrite, s.socket.Write)
 }
 
-func (s *Socket) Recv(buffer []byte) error {
+func (s *SocketTcp) Recv(buffer []byte) error {
 	nBytesToRead := cap(buffer)
 	return sendRecv(buffer, nBytesToRead, s.socket.Read)
 }
 
-func (s *Socket) Close() error {
+func (s *SocketTcp) Close() error {
+	if s.socket == nil {
+		return nil
+	}
 	return s.socket.Close()
 }
