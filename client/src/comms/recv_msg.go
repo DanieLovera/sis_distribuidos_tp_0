@@ -1,5 +1,5 @@
 package comms
 
-type RecvMsg[T interface{}] interface {
+type RecvMsg[T any] interface {
 	Deserialize() (T, error)
 }

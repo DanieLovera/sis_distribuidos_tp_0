@@ -16,27 +16,27 @@ var sequence uint32 = 0x00000000
  * codop (1 byte) | payloadSize (big endian 2 bytes)
  *
  * PAYLOAD:
- * sequence (big endian4 bytes) | document (big endian 4 bytes) | betnumber (big endian 4 bytes) |
+ * bettingHouseId (big endian 2 bytes) sequence (big endian 4 bytes) | document (big endian 4 bytes) | betnumber (big endian 4 bytes) |
  * nameSize (1 byte) | name (stream n bytes) | lastnameSize (1 byte) | lastname (stream n bytes) | birthdateSize (1 byte) | birthdate (stream n bytes)
  */
 type SendBetMsg struct {
+	bet           *common.BetDto
+	sequence      uint32
 	payloadSize   uint16
 	nameSize      uint8
 	lastnameSize  uint8
 	birthdateSize uint8
-	sequence      uint32
-	bet           *common.BetDto
 }
 
 func NewSendBetMsg(bet *common.BetDto) SendBetMsg {
 	defer func() { sequence++ }()
 	return SendBetMsg{
-		payloadSize:   uint16(sizeOfPaylod(bet)),
-		nameSize:      uint8(sizeOfName(bet)),
-		lastnameSize:  uint8(sizeOfLastname(bet)),
-		birthdateSize: uint8(sizeOfBirthdate(bet)),
-		sequence:      sequence,
 		bet:           bet,
+		sequence:      sequence,
+		payloadSize:   uint16(sizeOfPaylod(bet)),
+		nameSize:      uint8(sizeOfBetName(bet)),
+		lastnameSize:  uint8(sizeOfBetLastname(bet)),
+		birthdateSize: uint8(sizeOfBetBirthdate(bet)),
 	}
 }
 
@@ -64,15 +64,15 @@ func sizeOfBirthdateSize() int {
 	return common.SizeOfField(SendBetMsg{}, "birthdateSize")
 }
 
-func sizeOfName(bet *common.BetDto) int {
+func sizeOfBetName(bet *common.BetDto) int {
 	return bet.SizeOfName()
 }
 
-func sizeOfLastname(bet *common.BetDto) int {
+func sizeOfBetLastname(bet *common.BetDto) int {
 	return bet.SizeOfLastname()
 }
 
-func sizeOfBirthdate(bet *common.BetDto) int {
+func sizeOfBetBirthdate(bet *common.BetDto) int {
 	return bet.SizeOfBirthdate()
 }
 
@@ -90,29 +90,48 @@ func sizeOfSendBetMsg(bet *common.BetDto) int {
 
 func (s *SendBetMsg) Serialize() ([]byte, error) {
 	result := make([]byte, 0, sizeOfSendBetMsg(s.bet))
-	codopBuf := []byte{byte(Codop)}
-	payloadSizeBuf := make([]byte, sizeOfPaylodSize())
-	sequenceBuf := make([]byte, sizeOfSequence())
-	documentBuf := make([]byte, s.bet.SizeOfDocument())
-	betnumberBuf := make([]byte, s.bet.SizeOfBetnumber())
-	nameSize := []byte{byte(s.nameSize)}
-	lastnameSize := []byte{byte(s.lastnameSize)}
-	birthdateSize := []byte{byte(s.birthdateSize)}
-	binary.BigEndian.PutUint16(payloadSizeBuf, uint16(s.payloadSize))
-	binary.BigEndian.PutUint32(sequenceBuf, uint32(s.sequence))
-	binary.BigEndian.PutUint32(documentBuf, uint32(s.bet.Document))
-	binary.BigEndian.PutUint32(betnumberBuf, uint32(s.bet.Betnumber))
 
+	/** Header **/
+	// codop
+	codopBuf := []byte{byte(Codop)}
 	result = append(result, codopBuf...)
+	// payloadSize
+	payloadSizeBuf := make([]byte, sizeOfPaylodSize())
+	binary.BigEndian.PutUint16(payloadSizeBuf, s.payloadSize)
 	result = append(result, payloadSizeBuf...)
+
+	/** Payload **/
+	/* Fixed Stream */
+	// bettingHouseId
+	bettingHouseIdBuf := make([]byte, s.bet.SizeOfBettingHouseId())
+	binary.BigEndian.PutUint16(bettingHouseIdBuf, s.bet.BettingHouseId)
+	result = append(result, bettingHouseIdBuf...)
+	// sequence
+	sequenceBuf := make([]byte, sizeOfSequence())
+	binary.BigEndian.PutUint32(sequenceBuf, s.sequence)
 	result = append(result, sequenceBuf...)
+	// document
+	documentBuf := make([]byte, s.bet.SizeOfDocument())
+	binary.BigEndian.PutUint32(documentBuf, s.bet.Document)
 	result = append(result, documentBuf...)
+	// betnumber
+	betnumberBuf := make([]byte, s.bet.SizeOfBetnumber())
+	binary.BigEndian.PutUint32(betnumberBuf, s.bet.Betnumber)
 	result = append(result, betnumberBuf...)
+
+	/* Variable Stream */
+	// name
+	nameSize := []byte{byte(s.nameSize)}
 	result = append(result, nameSize...)
 	result = append(result, []byte(s.bet.Name)...)
+	// lastname
+	lastnameSize := []byte{byte(s.lastnameSize)}
 	result = append(result, lastnameSize...)
 	result = append(result, []byte(s.bet.Lastname)...)
+	// birthdate
+	birthdateSize := []byte{byte(s.birthdateSize)}
 	result = append(result, birthdateSize...)
 	result = append(result, []byte(s.bet.Birthdate)...)
+
 	return result, nil
 }
