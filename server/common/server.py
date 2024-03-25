@@ -38,11 +38,12 @@ class Server:
         """
         try:
             # TODO: Modify the receive to avoid short-reads
-            msg = self._client_socket.recv(1024).rstrip().decode('utf-8')
+            msg = self._client_socket.recv(1024)
+
             addr = self._client_socket.getpeername()
             logging.info(f'action: receive_message | result: success | ip: {addr[0]} | msg: {msg}')
             # TODO: Modify the send to avoid short-writes
-            self._client_socket.send("{}\n".format(msg).encode('utf-8'))
+            self._client_socket.send(msg)
         except OSError as e:
             logging.error("action: receive_message | result: fail | error: {e}")
         finally:
