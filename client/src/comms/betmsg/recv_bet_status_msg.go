@@ -8,29 +8,29 @@ import (
 
 /* Communication protocol to recv a bet message status is as follows:
  *
- * status (1 byte) | document (big endian 4 bytes) | betnumber (big endian 4 bytes)
+ * payloadSize(big endian 2 bytes) | status (1 byte) | document (big endian 4 bytes) | betnumber (big endian 4 bytes)
  */
-type RecvBetStatusMsg struct {
-	stream []byte
+type RecvBetStatusMsg struct{}
+
+func NewRecvBetStatusMsg() RecvBetStatusMsg {
+	return RecvBetStatusMsg{}
 }
 
-func NewRecvBetStatusMsg(stream []byte) RecvBetStatusMsg {
-	return RecvBetStatusMsg{
-		stream: stream,
-	}
+func (r *RecvBetStatusMsg) SizeOfPayloadSize() int {
+	return common.SizeOfType(uint16(0x0000))
 }
 
-func (r *RecvBetStatusMsg) Deserialize() (common.BetStatusDto, error) {
+func (r *RecvBetStatusMsg) Deserialize(stream []byte) (common.BetStatusDto, error) {
 	betStatus := common.BetStatusDto{}
 	firstPointer := 0
 	secondPointer := firstPointer + betStatus.SizeOfStatus()
-	status := r.stream[firstPointer]
+	status := stream[firstPointer]
 	firstPointer = secondPointer
 	secondPointer = firstPointer + betStatus.SizeOfDocument()
-	document := binary.BigEndian.Uint32(r.stream[firstPointer:secondPointer])
+	document := binary.BigEndian.Uint32(stream[firstPointer:secondPointer])
 	firstPointer = secondPointer
 	secondPointer = firstPointer + betStatus.SizeOfBetnumber()
-	betnumber := binary.BigEndian.Uint32(r.stream[firstPointer:secondPointer])
+	betnumber := binary.BigEndian.Uint32(stream[firstPointer:secondPointer])
 	betStatus.Status = status
 	betStatus.Document = document
 	betStatus.Betnumber = betnumber

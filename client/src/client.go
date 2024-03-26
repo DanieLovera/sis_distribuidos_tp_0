@@ -67,7 +67,7 @@ loop:
 		}
 
 		defer c.socket.Close()
-		join := make(chan uint32, 1)
+		join := make(chan uint8, 1)
 		go c.processClient(join, bet)
 
 		// Wait until timeout, signal or join from the processClient
@@ -87,12 +87,24 @@ loop:
 	log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
 }
 
-func (c *Client) processClient(join chan uint32, bet common.BetDto) {
-	protocol := comms.NewProtocol(&c.socket)
-	id, _ := strconv.ParseUint(c.config.ID, 10, 16)
-	bet.BettingHouseId = uint16(id)
-	protocol.SendBet(bet)
+func (c *Client) processClient(join chan uint8, bet common.BetDto) {
+	defer func() {
+		time.Sleep(c.config.LoopPeriod)
+		join <- 0
+	}()
 
-	time.Sleep(c.config.LoopPeriod)
-	join <- bet.Document
+	id, err := strconv.ParseUint(c.config.ID, 10, 16)
+	if err != nil {
+		log.Errorf("action: parse_id | result: fail | client_id: %v | error: %v", c.config.ID, err)
+		return
+	}
+
+	protocol := comms.NewProtocol(&c.socket)
+	bet.BettingHouseId = uint16(id)
+	betStatus, err := protocol.SendBet(bet)
+	if err != nil {
+		log.Errorf("action: send_message | result: fail | client_id: %v | error: %v", bet.BettingHouseId, err)
+		return
+	}
+	log.Infof("action: send_message | result: success | client_id: %v | msg: %v", bet.BettingHouseId, betStatus)
 }
