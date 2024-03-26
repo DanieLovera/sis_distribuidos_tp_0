@@ -14,18 +14,6 @@ func NewSocketTcp() SocketTcp {
 	return SocketTcp{socket: nil}
 }
 
-func sendRecv(streamBuff []byte, streamBuffSize int, callback func([]byte) (int, error)) error {
-	for nbytes, err := callback(streamBuff); nbytes < streamBuffSize; {
-		if err != nil {
-			return err
-		}
-		n := 0
-		n, err = callback(streamBuff[nbytes:])
-		nbytes += n
-	}
-	return nil
-}
-
 func (s *SocketTcp) Connect(address string) error {
 	conn, err := net.Dial(procotol, address)
 	if err != nil {
@@ -33,6 +21,13 @@ func (s *SocketTcp) Connect(address string) error {
 	}
 	s.socket = conn
 	return nil
+}
+
+func (s *SocketTcp) Close() error {
+	if s.socket == nil {
+		return nil
+	}
+	return s.socket.Close()
 }
 
 func (s *SocketTcp) Send(stream []byte) error {
@@ -45,9 +40,14 @@ func (s *SocketTcp) Recv(buffer []byte) error {
 	return sendRecv(buffer, nBytesToRead, s.socket.Read)
 }
 
-func (s *SocketTcp) Close() error {
-	if s.socket == nil {
-		return nil
+func sendRecv(streamBuff []byte, streamBuffSize int, callback func([]byte) (int, error)) error {
+	for nbytes, err := callback(streamBuff); nbytes < streamBuffSize; {
+		if err != nil {
+			return err
+		}
+		n := 0
+		n, err = callback(streamBuff[nbytes:])
+		nbytes += n
 	}
-	return s.socket.Close()
+	return nil
 }
