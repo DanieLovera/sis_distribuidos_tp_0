@@ -1,21 +1,11 @@
-from common.utils import *
 import os
 import unittest
+from src.common.central_lottery import *
 
 class TestUtils(unittest.TestCase):
-
     def tearDown(self):
         if os.path.exists(STORAGE_FILEPATH):
             os.remove(STORAGE_FILEPATH)
-
-    def test_bet_init_must_keep_fields(self):
-        b = Bet('1', 'first', 'last', '10000000','2000-12-20', 7500)
-        self.assertEqual(1, b.agency)
-        self.assertEqual('first', b.first_name)
-        self.assertEqual('last', b.last_name)
-        self.assertEqual('10000000', b.document)
-        self.assertEqual(datetime.date(2000, 12, 20), b.birthdate)
-        self.assertEqual(7500, b.number)
 
     def test_has_won_with_winner_number_must_be_true(self):
         b = bet('1', 'first', 'last', 10000000,'2000-12-20', LOTTERY_WINNER_NUMBER)
@@ -56,4 +46,3 @@ class TestUtils(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
