@@ -3,7 +3,8 @@ package betmsg
 import (
 	"encoding/binary"
 
-	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/common"
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/dto"
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/util"
 )
 
 const Codop uint8 = 0x00
@@ -20,7 +21,7 @@ var sequence uint32 = 0x00000000
  * nameSize (1 byte) | name (stream n bytes) | lastnameSize (1 byte) | lastname (stream n bytes) | birthdateSize (1 byte) | birthdate (stream n bytes)
  */
 type SendBetMsg struct {
-	bet           *common.BetDto
+	bet           *dto.BettingDto
 	sequence      uint32
 	payloadSize   uint16
 	nameSize      uint8
@@ -28,7 +29,7 @@ type SendBetMsg struct {
 	birthdateSize uint8
 }
 
-func NewSendBetMsg(bet *common.BetDto) SendBetMsg {
+func NewSendBetMsg(bet *dto.BettingDto) SendBetMsg {
 	defer func() { sequence++ }()
 	return SendBetMsg{
 		bet:           bet,
@@ -41,50 +42,50 @@ func NewSendBetMsg(bet *common.BetDto) SendBetMsg {
 }
 
 func sizeOfCodop() int {
-	return common.SizeOfType(Codop)
+	return util.SizeOfType(Codop)
 }
 
 func sizeOfSequence() int {
-	return common.SizeOfField(SendBetMsg{}, "sequence")
+	return util.SizeOfField(SendBetMsg{}, "sequence")
 }
 
 func sizeOfPaylodSize() int {
-	return common.SizeOfField(SendBetMsg{}, "payloadSize")
+	return util.SizeOfField(SendBetMsg{}, "payloadSize")
 }
 
 func sizeOfNameSize() int {
-	return common.SizeOfField(SendBetMsg{}, "nameSize")
+	return util.SizeOfField(SendBetMsg{}, "nameSize")
 }
 
 func sizeOfLastnameSize() int {
-	return common.SizeOfField(SendBetMsg{}, "lastnameSize")
+	return util.SizeOfField(SendBetMsg{}, "lastnameSize")
 }
 
 func sizeOfBirthdateSize() int {
-	return common.SizeOfField(SendBetMsg{}, "birthdateSize")
+	return util.SizeOfField(SendBetMsg{}, "birthdateSize")
 }
 
-func sizeOfBetName(bet *common.BetDto) int {
+func sizeOfBetName(bet *dto.BettingDto) int {
 	return bet.SizeOfName()
 }
 
-func sizeOfBetLastname(bet *common.BetDto) int {
+func sizeOfBetLastname(bet *dto.BettingDto) int {
 	return bet.SizeOfLastname()
 }
 
-func sizeOfBetBirthdate(bet *common.BetDto) int {
+func sizeOfBetBirthdate(bet *dto.BettingDto) int {
 	return bet.SizeOfBirthdate()
 }
 
-func sizeOfBet(bet *common.BetDto) int {
+func sizeOfBet(bet *dto.BettingDto) int {
 	return bet.SizeOf()
 }
 
-func sizeOfPaylod(bet *common.BetDto) int {
+func sizeOfPaylod(bet *dto.BettingDto) int {
 	return sizeOfSequence() + sizeOfNameSize() + sizeOfLastnameSize() + sizeOfBirthdateSize() + sizeOfBet(bet)
 }
 
-func sizeOfSendBetMsg(bet *common.BetDto) int {
+func sizeOfSendBetMsg(bet *dto.BettingDto) int {
 	return sizeOfCodop() + sizeOfPaylodSize() + sizeOfPaylod(bet)
 }
 

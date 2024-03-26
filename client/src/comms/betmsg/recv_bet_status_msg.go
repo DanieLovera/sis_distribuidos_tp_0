@@ -3,7 +3,8 @@ package betmsg
 import (
 	"encoding/binary"
 
-	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/common"
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/dto"
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/util"
 )
 
 /* Communication protocol to recv a bet message status is as follows:
@@ -17,11 +18,11 @@ func NewRecvBetStatusMsg() RecvBetStatusMsg {
 }
 
 func (r *RecvBetStatusMsg) SizeOfPayloadSize() int {
-	return common.SizeOfType(uint16(0x0000))
+	return util.SizeOfType(uint16(0x0000))
 }
 
-func (r *RecvBetStatusMsg) Deserialize(stream []byte) (common.BetStatusDto, error) {
-	betStatus := common.BetStatusDto{}
+func (r *RecvBetStatusMsg) Deserialize(stream []byte) (dto.BettingStatusDto, error) {
+	betStatus := dto.BettingStatusDto{}
 	firstPointer := 0
 	secondPointer := firstPointer + betStatus.SizeOfStatus()
 	status := stream[firstPointer]

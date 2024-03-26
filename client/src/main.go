@@ -97,13 +97,13 @@ func main() {
 	// Print program config with debugging purposes
 	PrintConfig(v)
 
-	clientConfig := ClientConfig{
+	bettingHouseConfig := BettingHouseConfig{
 		ServerAddress: v.GetString("server.address"),
 		ID:            v.GetString("id"),
 		LoopLapse:     v.GetDuration("loop.lapse"),
 		LoopPeriod:    v.GetDuration("loop.period"),
 	}
 
-	client := NewClient(clientConfig)
-	client.StartClientLoop()
+	bettingHouse := NewBettingHouse(bettingHouseConfig)
+	bettingHouse.Start()
 }

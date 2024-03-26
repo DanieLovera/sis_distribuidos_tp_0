@@ -3,53 +3,54 @@ package comms
 import (
 	"encoding/binary"
 
-	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/common"
 	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/comms/betmsg"
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/comms/interfaces"
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/dto"
 	log "github.com/sirupsen/logrus"
 )
 
 type Protocol struct {
-	sendRecv common.SendRecv
+	sendRecv interfaces.SendRecv
 }
 
-func NewProtocol(sendRecv common.SendRecv) Protocol {
+func NewProtocol(sendRecv interfaces.SendRecv) Protocol {
 	return Protocol{sendRecv: sendRecv}
 }
 
-func (p *Protocol) SendBet(bet common.BetDto) (common.BetStatusDto, error) {
+func (p *Protocol) SendBet(bet dto.BettingDto) (dto.BettingStatusDto, error) {
 	err := p.sendBet(bet)
 	if err != nil {
 		log.Errorf("action: send_message | result: fail | client_id: %v | error: %v", bet.BettingHouseId, err)
-		return common.BetStatusDto{}, err
+		return dto.BettingStatusDto{}, err
 	}
 
 	betStatus, err := p.recvBetStatus()
 	if err != nil {
 		log.Errorf("action: receive_message | result: fail | client_id: %v | error: %v", bet.BettingHouseId, err)
-		return common.BetStatusDto{}, err
+		return dto.BettingStatusDto{}, err
 	}
 	return betStatus, nil
 }
 
-func (p *Protocol) sendBet(bet common.BetDto) error {
+func (p *Protocol) sendBet(bet dto.BettingDto) error {
 	sendBetMsg := betmsg.NewSendBetMsg(&bet)
 	stream, _ := sendBetMsg.Serialize()
 	return p.sendRecv.Send(stream)
 }
 
-func (p *Protocol) recvBetStatus() (common.BetStatusDto, error) {
+func (p *Protocol) recvBetStatus() (dto.BettingStatusDto, error) {
 	recvBetStatusMsg := betmsg.NewRecvBetStatusMsg()
 	buff := make([]byte, recvBetStatusMsg.SizeOfPayloadSize())
 	err := p.sendRecv.Recv(buff)
 	if err != nil {
-		return common.BetStatusDto{}, err
+		return dto.BettingStatusDto{}, err
 	}
 
 	payloadSize := binary.BigEndian.Uint32(buff)
 	buff = make([]byte, payloadSize)
 	err = p.sendRecv.Recv(buff)
 	if err != nil {
-		return common.BetStatusDto{}, err
+		return dto.BettingStatusDto{}, err
 	}
 	return recvBetStatusMsg.Deserialize(buff)
 }

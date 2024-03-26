@@ -1,20 +1,21 @@
-package common
+package main
 
 import (
 	"strings"
 	"sync"
 
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/dto"
 	"github.com/spf13/viper"
 )
 
-type BetReader struct {
+type BetingReader struct {
 	vpr *viper.Viper
 }
 
-var instance *BetReader = nil
+var instance *BetingReader = nil
 var syncOnce sync.Once = sync.Once{}
 
-func GetBetReaderInstance() *BetReader {
+func GetBettingReaderInstance() *BetingReader {
 	syncOnce.Do(func() {
 		var vpr *viper.Viper = viper.New()
 		vpr.AutomaticEnv()
@@ -25,15 +26,15 @@ func GetBetReaderInstance() *BetReader {
 		vpr.BindEnv("lastname")
 		vpr.BindEnv("betnumber")
 		vpr.BindEnv("birthdate")
-		instance = &BetReader{
+		instance = &BetingReader{
 			vpr: vpr,
 		}
 	})
 	return instance
 }
 
-func (b *BetReader) Read() (BetDto, error) {
-	return BetDto{
+func (b *BetingReader) Read() (dto.BettingDto, error) {
+	return dto.BettingDto{
 		Document:  b.vpr.GetUint32("document"),
 		Name:      b.vpr.GetString("name"),
 		Lastname:  b.vpr.GetString("lastname"),

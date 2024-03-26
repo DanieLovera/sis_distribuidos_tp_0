@@ -1,8 +1,6 @@
-package common
+package util
 
-import (
-	"net"
-)
+import "net"
 
 const procotol = "tcp"
 

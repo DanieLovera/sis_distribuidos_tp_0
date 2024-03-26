@@ -1,4 +1,4 @@
-package common
+package interfaces
 
 type SendRecv interface {
 	Send([]byte) error
