@@ -1,10 +1,10 @@
-package main
+package betting
 
 import (
 	"strings"
 	"sync"
 
-	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/dto"
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/betting/dto"
 	"github.com/spf13/viper"
 )
 

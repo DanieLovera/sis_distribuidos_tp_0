@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/betting"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -97,13 +98,13 @@ func main() {
 	// Print program config with debugging purposes
 	PrintConfig(v)
 
-	bettingHouseConfig := BettingHouseConfig{
+	bettingHouseConfig := betting.BettingHouseConfig{
 		ServerAddress: v.GetString("server.address"),
 		ID:            v.GetString("id"),
 		LoopLapse:     v.GetDuration("loop.lapse"),
 		LoopPeriod:    v.GetDuration("loop.period"),
 	}
 
-	bettingHouse := NewBettingHouse(bettingHouseConfig)
+	bettingHouse := betting.NewBettingHouse(bettingHouseConfig)
 	bettingHouse.Start()
 }

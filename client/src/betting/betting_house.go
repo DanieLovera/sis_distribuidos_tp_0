@@ -1,4 +1,4 @@
-package main
+package betting
 
 import (
 	"os"
@@ -7,8 +7,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/betting/dto"
 	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/comms"
-	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/dto"
 	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/util"
 
 	log "github.com/sirupsen/logrus"

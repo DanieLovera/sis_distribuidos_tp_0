@@ -3,9 +3,9 @@ package comms
 import (
 	"encoding/binary"
 
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/betting/dto"
 	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/comms/betmsg"
 	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/comms/interfaces"
-	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/dto"
 	log "github.com/sirupsen/logrus"
 )
 

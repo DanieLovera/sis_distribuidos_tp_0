@@ -3,7 +3,7 @@ package betmsg
 import (
 	"encoding/binary"
 
-	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/dto"
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/betting/dto"
 	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/src/util"
 )
 
